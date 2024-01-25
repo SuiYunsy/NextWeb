@@ -63,6 +63,7 @@
   width: calc(100% - 40px);
 
   .prompt-toast-inner {
+    display: none !important;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -246,8 +247,7 @@
   flex: 1;
   overflow: auto;
   overflow-x: hidden;
-  padding: 20px;
-  padding-bottom: 40px;
+  padding: 2px 20px 12px;
   position: relative;
   overscroll-behavior: none;
 }
@@ -285,7 +285,7 @@
 }
 
 .chat-message-header {
-  margin-top: 20px;
+  margin-top: 6px;
   display: flex;
   align-items: center;
 
@@ -296,9 +296,9 @@
     align-items: flex-end;
     justify-content: space-between;
     transition: all ease 0.3s;
-    transform: scale(0.9) translateY(5px);
+    transform: scale(1) translateY(0px);
     margin: 0 10px;
-    opacity: 0;
+    opacity: 1;
     pointer-events: none;
 
     .chat-input-actions {
@@ -369,7 +369,7 @@
 .chat-message-item {
   box-sizing: border-box;
   max-width: 100%;
-  margin-top: 10px;
+  margin-top: 0px;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.05);
   padding: 10px;
@@ -382,6 +382,7 @@
 }
 
 .chat-message-action-date {
+  display: none;
   font-size: 12px;
   opacity: 0.2;
   white-space: nowrap;
@@ -406,8 +407,7 @@
 .chat-input-panel {
   position: relative;
   width: 100%;
-  padding: 20px;
-  padding-top: 10px;
+  padding: 10px 20px 10px;
   box-sizing: border-box;
   flex-direction: column;
   border-top: var(--border-in-light);
@@ -503,8 +503,8 @@
   color: white;
 
   position: absolute;
-  right: 30px;
-  bottom: 32px;
+  right: 28px;
+  bottom: 16px;
 }
 
 @media only screen and (max-width: 600px) {
@@ -513,6 +513,6 @@
   }
 
   .chat-input-send {
-    bottom: 30px;
+    bottom: 16px;
   }
 }

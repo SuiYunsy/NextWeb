@@ -375,27 +375,71 @@ function ChatAction(props: {
   );
 }
 
+// function useScrollToBottom() {
+//   // for auto-scroll
+//   const scrollRef = useRef<HTMLDivElement>(null);
+//   const [autoScroll, setAutoScroll] = useState(true);
+
+//   function scrollDomToBottom() {
+//     const dom = scrollRef.current;
+//     if (dom) {
+//       requestAnimationFrame(() => {
+//         setAutoScroll(true);
+//         dom.scrollTo(0, dom.scrollHeight);
+//       });
+//     }
+//   }
+
+//   // auto scroll
+//   useEffect(() => {
+//     if (autoScroll) {
+//       scrollDomToBottom();
+//     }
+//   });
+
+//   return {
+//     scrollRef,
+//     autoScroll,
+//     setAutoScroll,
+//     scrollDomToBottom,
+//   };
+// }
+
 function useScrollToBottom() {
   // for auto-scroll
   const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [preHeight, setPreHeight] = useState(0);
 
-  function scrollDomToBottom() {
+  const scrollDomToBottom = () => {
     const dom = scrollRef.current;
-    if (dom) {
-      requestAnimationFrame(() => {
-        setAutoScroll(true);
-        dom.scrollTo(0, dom.scrollHeight);
-      });
-    }
-  }
+    if (!dom) return;
+    setPreHeight(dom.scrollHeight);
+    dom.scrollTo(0, dom.scrollHeight);
+  };
 
-  // auto scroll
   useEffect(() => {
+    const dom = scrollRef.current;
+    if (!dom) return;
+
+    // 使用MutationObserver来观察scrollHeight的变化
+    const observer = new MutationObserver(() => {
+      if (autoScroll) {
+        if (preHeight !== dom.scrollHeight) {
+          scrollDomToBottom();
+        }
+      }
+    });
+    observer.observe(dom, { attributes: true, childList: true, subtree: true });
+
+    // 立即执行一次滚动，确保初始状态正确
     if (autoScroll) {
       scrollDomToBottom();
     }
-  });
+
+    // 清理函数
+    return () => observer.disconnect();
+  }, [autoScroll, preHeight]);
 
   return {
     scrollRef,
@@ -647,7 +691,7 @@ function _Chat() {
     () => {
       const rows = inputRef.current ? autoGrowTextArea(inputRef.current) : 1;
       const inputRows = Math.min(
-        20,
+        14,
         Math.max(2 + Number(!isMobileScreen), rows),
       );
       setInputRows(inputRows);
@@ -785,7 +829,7 @@ function _Chat() {
     // copy to clipboard
     if (selectOrCopy(e.currentTarget, message.content)) {
       if (userInput.length === 0) {
-        setUserInput(message.content);
+        // setUserInput(message.content);
       }
 
       e.preventDefault();
@@ -1289,8 +1333,8 @@ function _Chat() {
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
-            onFocus={scrollToBottom}
-            onClick={scrollToBottom}
+            // onFocus={scrollToBottom}
+            // onClick={scrollToBottom}
             rows={inputRows}
             autoFocus={autoFocus}
             style={{

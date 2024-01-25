@@ -50,6 +50,7 @@
   transition: width ease 0.05s;
 
   .sidebar-header-bar {
+    display: none !important;
     display: flex;
     margin-bottom: 20px;
 
@@ -135,17 +136,21 @@
 
 .sidebar-header {
   position: relative;
-  padding-top: 20px;
+  text-align: center;
+  padding-top: 0px;
   padding-bottom: 20px;
 }
 
 .sidebar-logo {
+  display: none;
   position: absolute;
   right: 0;
   bottom: 18px;
 }
 
 .sidebar-title {
+  text-decoration: underline;
+  text-decoration-color: #808080;
   font-size: 20px;
   font-weight: bold;
   animation: slide-in ease 0.3s;
@@ -164,10 +169,10 @@
 }
 
 .chat-item {
-  padding: 10px 14px;
+  padding: 8px 12px;
   background-color: var(--white);
   border-radius: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   box-shadow: var(--card-shadow);
   transition: background-color 0.3s ease;
   cursor: pointer;
@@ -236,12 +241,14 @@
     display: none;
   }
   .sidebar-logo {
+    display: none !important;
     position: relative;
     display: flex;
     justify-content: center;
   }
 
   .sidebar-header-bar {
+    display: none !important;
     flex-direction: column;
 
     .sidebar-bar-button {
