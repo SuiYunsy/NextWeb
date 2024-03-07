@@ -383,6 +383,7 @@ function ChatAction(props: {
   );
 }
 
+// 初版
 // function useScrollToBottom() {
 //   // for auto-scroll
 //   const scrollRef = useRef<HTMLDivElement>(null);
@@ -413,73 +414,42 @@ function ChatAction(props: {
 //   };
 // }
 
-// function useScrollToBottom() {
-//   // for auto-scroll
-//   const scrollRef = useRef<HTMLDivElement>(null);
-//   const [autoScroll, setAutoScroll] = useState(true);
-//   const [preHeight, setPreHeight] = useState(0);
-
-//   const scrollDomToBottom = () => {
-//     const dom = scrollRef.current;
-//     if (!dom) return;
-//     setPreHeight(dom.scrollHeight);
-//     dom.scrollTo(0, dom.scrollHeight);
-//   };
-
-//   useEffect(() => {
-//     const dom = scrollRef.current;
-//     if (!dom) return;
-
-//     // 使用MutationObserver来观察scrollHeight的变化
-//     const observer = new MutationObserver(() => {
-//       if (autoScroll) {
-//         if (preHeight !== dom.scrollHeight) {
-//           scrollDomToBottom();
-//         }
-//       }
-//     });
-//     observer.observe(dom, { attributes: true, childList: true, subtree: true });
-
-//     // 立即执行一次滚动，确保初始状态正确
-//     if (autoScroll) {
-//       scrollDomToBottom();
-//     }
-
-//     // 清理函数
-//     return () => observer.disconnect();
-//   }, [autoScroll, preHeight]);
-
-//   return {
-//     scrollRef,
-//     autoScroll,
-//     setAutoScroll,
-//     scrollDomToBottom,
-//   };
-// }
-
-function useScrollToBottom(
-  scrollRef: RefObject<HTMLDivElement>,
-  detach: boolean = false,
-) {
+// 鸭哥
+function useScrollToBottom() {
   // for auto-scroll
-
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
-  function scrollDomToBottom() {
-    const dom = scrollRef.current;
-    if (dom) {
-      requestAnimationFrame(() => {
-        setAutoScroll(true);
-        dom.scrollTo(0, dom.scrollHeight);
-      });
-    }
-  }
+  const [preHeight, setPreHeight] = useState(0);
 
-  // auto scroll
+  const scrollDomToBottom = () => {
+    const dom = scrollRef.current;
+    if (!dom) return;
+    setPreHeight(dom.scrollHeight);
+    dom.scrollTo(0, dom.scrollHeight);
+  };
+
   useEffect(() => {
-    if (autoScroll && !detach) {
+    const dom = scrollRef.current;
+    if (!dom) return;
+
+    // 使用MutationObserver来观察scrollHeight的变化
+    const observer = new MutationObserver(() => {
+      if (autoScroll) {
+        if (preHeight !== dom.scrollHeight) {
+          scrollDomToBottom();
+        }
+      }
+    });
+    observer.observe(dom, { attributes: true, childList: true, subtree: true });
+
+    // 立即执行一次滚动，确保初始状态正确
+    if (autoScroll) {
       scrollDomToBottom();
     }
-  });
+
+    // 清理函数
+    return () => observer.disconnect();
+  }, [autoScroll, preHeight]);
 
   return {
     scrollRef,
@@ -488,6 +458,39 @@ function useScrollToBottom(
     scrollDomToBottom,
   };
 }
+
+// 改版
+// function useScrollToBottom(
+//   scrollRef: RefObject<HTMLDivElement>,
+//   detach: boolean = false,
+// ) {
+//   // for auto-scroll
+
+//   const [autoScroll, setAutoScroll] = useState(true);
+//   function scrollDomToBottom() {
+//     const dom = scrollRef.current;
+//     if (dom) {
+//       requestAnimationFrame(() => {
+//         setAutoScroll(true);
+//         dom.scrollTo(0, dom.scrollHeight);
+//       });
+//     }
+//   }
+
+//   // auto scroll
+//   useEffect(() => {
+//     if (autoScroll && !detach) {
+//       scrollDomToBottom();
+//     }
+//   });
+
+//   return {
+//     scrollRef,
+//     autoScroll,
+//     setAutoScroll,
+//     scrollDomToBottom,
+//   };
+// }
 
 export function ChatActions(props: {
   uploadImage: () => void;
