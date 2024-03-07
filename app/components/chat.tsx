@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useCallback,
   Fragment,
+  RefObject,
 } from "react";
 
 import SendWhiteIcon from "../icons/send-white.svg";
@@ -412,41 +413,73 @@ function ChatAction(props: {
 //   };
 // }
 
-function useScrollToBottom() {
+// function useScrollToBottom() {
+//   // for auto-scroll
+//   const scrollRef = useRef<HTMLDivElement>(null);
+//   const [autoScroll, setAutoScroll] = useState(true);
+//   const [preHeight, setPreHeight] = useState(0);
+
+//   const scrollDomToBottom = () => {
+//     const dom = scrollRef.current;
+//     if (!dom) return;
+//     setPreHeight(dom.scrollHeight);
+//     dom.scrollTo(0, dom.scrollHeight);
+//   };
+
+//   useEffect(() => {
+//     const dom = scrollRef.current;
+//     if (!dom) return;
+
+//     // 使用MutationObserver来观察scrollHeight的变化
+//     const observer = new MutationObserver(() => {
+//       if (autoScroll) {
+//         if (preHeight !== dom.scrollHeight) {
+//           scrollDomToBottom();
+//         }
+//       }
+//     });
+//     observer.observe(dom, { attributes: true, childList: true, subtree: true });
+
+//     // 立即执行一次滚动，确保初始状态正确
+//     if (autoScroll) {
+//       scrollDomToBottom();
+//     }
+
+//     // 清理函数
+//     return () => observer.disconnect();
+//   }, [autoScroll, preHeight]);
+
+//   return {
+//     scrollRef,
+//     autoScroll,
+//     setAutoScroll,
+//     scrollDomToBottom,
+//   };
+// }
+
+function useScrollToBottom(
+  scrollRef: RefObject<HTMLDivElement>,
+  detach: boolean = false,
+) {
   // for auto-scroll
-  const scrollRef = useRef<HTMLDivElement>(null);
+
   const [autoScroll, setAutoScroll] = useState(true);
-  const [preHeight, setPreHeight] = useState(0);
-
-  const scrollDomToBottom = () => {
+  function scrollDomToBottom() {
     const dom = scrollRef.current;
-    if (!dom) return;
-    setPreHeight(dom.scrollHeight);
-    dom.scrollTo(0, dom.scrollHeight);
-  };
+    if (dom) {
+      requestAnimationFrame(() => {
+        setAutoScroll(true);
+        dom.scrollTo(0, dom.scrollHeight);
+      });
+    }
+  }
 
+  // auto scroll
   useEffect(() => {
-    const dom = scrollRef.current;
-    if (!dom) return;
-
-    // 使用MutationObserver来观察scrollHeight的变化
-    const observer = new MutationObserver(() => {
-      if (autoScroll) {
-        if (preHeight !== dom.scrollHeight) {
-          scrollDomToBottom();
-        }
-      }
-    });
-    observer.observe(dom, { attributes: true, childList: true, subtree: true });
-
-    // 立即执行一次滚动，确保初始状态正确
-    if (autoScroll) {
+    if (autoScroll && !detach) {
       scrollDomToBottom();
     }
-
-    // 清理函数
-    return () => observer.disconnect();
-  }, [autoScroll, preHeight]);
+  });
 
   return {
     scrollRef,
@@ -702,7 +735,17 @@ function _Chat() {
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
-  const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isScrolledToBottom = scrollRef?.current
+    ? Math.abs(
+        scrollRef.current.scrollHeight -
+          (scrollRef.current.scrollTop + scrollRef.current.clientHeight),
+      ) <= 1
+    : false;
+  const { setAutoScroll, scrollDomToBottom } = useScrollToBottom(
+    scrollRef,
+    isScrolledToBottom,
+  );
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
@@ -1047,7 +1090,6 @@ function _Chat() {
     setHitBottom(isHitBottom);
     setAutoScroll(isHitBottom);
   };
-
   function scrollToBottom() {
     setMsgRenderIndex(renderMessages.length - CHAT_PAGE_SIZE);
     scrollDomToBottom();
@@ -1132,6 +1174,47 @@ function _Chat() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  
+  const handlePaste = useCallback(
+    async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const currentModel = chatStore.currentSession().mask.modelConfig.model;
+      if(!isVisionModel(currentModel)){return;}
+      const items = (event.clipboardData || window.clipboardData).items;
+      for (const item of items) {
+        if (item.kind === "file" && item.type.startsWith("image/")) {
+          event.preventDefault();
+          const file = item.getAsFile();
+          if (file) {
+            const images: string[] = [];
+            images.push(...attachImages);
+            images.push(
+              ...(await new Promise<string[]>((res, rej) => {
+                setUploading(true);
+                const imagesData: string[] = [];
+                compressImage(file, 256 * 1024)
+                  .then((dataUrl) => {
+                    imagesData.push(dataUrl);
+                    setUploading(false);
+                    res(imagesData);
+                  })
+                  .catch((e) => {
+                    setUploading(false);
+                    rej(e);
+                  });
+              })),
+            );
+            const imagesLength = images.length;
+
+            if (imagesLength > 3) {
+              images.splice(3, imagesLength - 3);
+            }
+            setAttachImages(images);
+          }
+        }
+      }
+    },
+    [attachImages, chatStore],
+  );
 
   async function uploadImage() {
     const images: string[] = [];
@@ -1481,6 +1564,7 @@ function _Chat() {
             onKeyDown={onInputKeyDown}
             // onFocus={scrollToBottom}
             // onClick={scrollToBottom}
+            onPaste={handlePaste}
             rows={inputRows}
             autoFocus={autoFocus}
             style={{
