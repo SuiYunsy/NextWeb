@@ -415,75 +415,41 @@ function ChatAction(props: {
 // }
 
 // 鸭哥
-// function useScrollToBottom() {
-//   // for auto-scroll
-//   const scrollRef = useRef<HTMLDivElement>(null);
-//   const [autoScroll, setAutoScroll] = useState(true);
-//   const [preHeight, setPreHeight] = useState(0);
-
-//   const scrollDomToBottom = () => {
-//     const dom = scrollRef.current;
-//     if (!dom) return;
-//     setPreHeight(dom.scrollHeight);
-//     dom.scrollTo(0, dom.scrollHeight);
-//   };
-
-//   useEffect(() => {
-//     const dom = scrollRef.current;
-//     if (!dom) return;
-
-//     // 使用MutationObserver来观察scrollHeight的变化
-//     const observer = new MutationObserver(() => {
-//       if (autoScroll) {
-//         if (preHeight !== dom.scrollHeight) {
-//           scrollDomToBottom();
-//         }
-//       }
-//     });
-//     observer.observe(dom, { attributes: true, childList: true, subtree: true });
-
-//     // 立即执行一次滚动，确保初始状态正确
-//     if (autoScroll) {
-//       scrollDomToBottom();
-//     }
-
-//     // 清理函数
-//     return () => observer.disconnect();
-//   }, [autoScroll, preHeight]);
-
-//   return {
-//     scrollRef,
-//     autoScroll,
-//     setAutoScroll,
-//     scrollDomToBottom,
-//   };
-// }
-
-// 改版：PC端仍然不容易上滑
-// https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web/commit/410a22dc634816b13848977d037506fbe2ad4957
-function useScrollToBottom(
-  scrollRef: RefObject<HTMLDivElement>,
-  detach: boolean = false,
-) {
+function useScrollToBottom() {
   // for auto-scroll
-
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
-  function scrollDomToBottom() {
-    const dom = scrollRef.current;
-    if (dom) {
-      requestAnimationFrame(() => {
-        setAutoScroll(true);
-        dom.scrollTo(0, dom.scrollHeight);
-      });
-    }
-  }
+  const [preHeight, setPreHeight] = useState(0);
 
-  // auto scroll
+  const scrollDomToBottom = () => {
+    const dom = scrollRef.current;
+    if (!dom) return;
+    setPreHeight(dom.scrollHeight);
+    dom.scrollTo(0, dom.scrollHeight);
+  };
+
   useEffect(() => {
-    if (autoScroll && !detach) {
+    const dom = scrollRef.current;
+    if (!dom) return;
+
+    // 使用MutationObserver来观察scrollHeight的变化
+    const observer = new MutationObserver(() => {
+      if (autoScroll) {
+        if (preHeight !== dom.scrollHeight) {
+          scrollDomToBottom();
+        }
+      }
+    });
+    observer.observe(dom, { attributes: true, childList: true, subtree: true });
+
+    // 立即执行一次滚动，确保初始状态正确
+    if (autoScroll) {
       scrollDomToBottom();
     }
-  });
+
+    // 清理函数
+    return () => observer.disconnect();
+  }, [autoScroll, preHeight]);
 
   return {
     scrollRef,
@@ -492,6 +458,40 @@ function useScrollToBottom(
     scrollDomToBottom,
   };
 }
+
+// 改版：PC端仍然不能上滑
+// https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web/commit/44a51273be98519a60023f3687d0dea71c02c335
+// function useScrollToBottom(
+//   scrollRef: RefObject<HTMLDivElement>,
+//   detach: boolean = false,
+// ) {
+//   // for auto-scroll
+
+//   const [autoScroll, setAutoScroll] = useState(true);
+//   function scrollDomToBottom() {
+//     const dom = scrollRef.current;
+//     if (dom) {
+//       requestAnimationFrame(() => {
+//         setAutoScroll(true);
+//         dom.scrollTo(0, dom.scrollHeight);
+//       });
+//     }
+//   }
+
+//   // auto scroll
+//   useEffect(() => {
+//     if (autoScroll && !detach) {
+//       scrollDomToBottom();
+//     }
+//   });
+
+//   return {
+//     scrollRef,
+//     autoScroll,
+//     setAutoScroll,
+//     scrollDomToBottom,
+//   };
+// }
 
 export function ChatActions(props: {
   uploadImage: () => void;
@@ -739,17 +739,18 @@ function _Chat() {
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const isScrolledToBottom = scrollRef?.current
-    ? Math.abs(
-        scrollRef.current.scrollHeight -
-          (scrollRef.current.scrollTop + scrollRef.current.clientHeight),
-      ) <= 1
-    : false;
-  const { setAutoScroll, scrollDomToBottom } = useScrollToBottom(
-    scrollRef,
-    isScrolledToBottom,
-  );
+  const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
+  // const scrollRef = useRef<HTMLDivElement>(null);
+  // const isScrolledToBottom = scrollRef?.current
+  //   ? Math.abs(
+  //       scrollRef.current.scrollHeight -
+  //         (scrollRef.current.scrollTop + scrollRef.current.clientHeight),
+  //     ) <= 1
+  //   : false;
+  // const { setAutoScroll, scrollDomToBottom } = useScrollToBottom(
+  //   scrollRef,
+  //   isScrolledToBottom,
+  // );
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
