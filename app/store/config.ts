@@ -46,7 +46,7 @@ export const DEFAULT_CONFIG = {
   models: DEFAULT_MODELS as any as LLMModel[],
 
   modelConfig: {
-    model: "gpt-3.5-turbo-0125" as ModelType,
+    model: "gpt-3.5-turbo" as ModelType,
     temperature: 0.5,
     top_p: 0.9,
     max_tokens: 4096,
@@ -54,8 +54,8 @@ export const DEFAULT_CONFIG = {
     frequency_penalty: 0,
     sendMemory: true,
     historyMessageCount: 6,
-    compressMessageLengthThreshold: 3072,
-    enableInjectSystemPrompts: false,
+    compressMessageLengthThreshold: 3600,
+    enableInjectSystemPrompts: true,
     template: DEFAULT_INPUT_TEMPLATE,
   },
 };
