@@ -29,7 +29,7 @@ const config = getClientConfig();
 export const DEFAULT_CONFIG = {
   lastUpdate: Date.now(), // timestamp, to merge state
 
-  submitKey: isMacOS() ? SubmitKey.Enter : SubmitKey.Enter,
+  submitKey: SubmitKey.Enter,
   avatar: "1f308", // Rainbow
   fontSize: 15,
   theme: Theme.Auto as Theme,
