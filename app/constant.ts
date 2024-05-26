@@ -137,7 +137,6 @@ export const KnowledgeCutOffDate: Record<string, string> = {
 };
 
 const openaiModels = [
-  "deepseek-chat",
   "gpt-3.5-turbo",
   "gpt-3.5-turbo-0125",
   "gpt-4",
