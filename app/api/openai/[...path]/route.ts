@@ -79,6 +79,7 @@ async function handle(
           controller.enqueue(encoder.encode(JSON.stringify(availableModels)));
           controller.close();
         } else {
+          if(response.body){
           const reader = response.body.getReader();
           const streamReader = async () => {
             while (true) {
@@ -92,7 +93,7 @@ async function handle(
             }
           };
           streamReader();
-        }
+        }else {streamEnded=true;controller.close();}}
       } catch (e) {
         console.error("[OpenAI] ", e);
         controller.enqueue(encoder.encode(prettyObject(e)));
