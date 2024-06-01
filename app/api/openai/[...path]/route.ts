@@ -52,59 +52,23 @@ async function handle(
     });
   }
 
-  // 创建一个ReadableStream来处理响应流
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-  let streamEnded = false;
+  try {
+    const response = await requestOpenai(req);
 
-  const stream = new ReadableStream({
-    async start(controller) {
-      async function keepAlive() {
-        while (!streamEnded) {
-          const space = '😋'; // Zero Width Space
-          const queue = encoder.encode(space);
-          controller.enqueue(queue);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
+    // list models
+    if (subpath === OpenaiPath.ListModelPath && response.status === 200) {
+      const resJson = (await response.json()) as OpenAIListModelResponse;
+      const availableModels = getModels(resJson);
+      return NextResponse.json(availableModels, {
+        status: response.status,
+      });
+    }
 
-      keepAlive();
-
-      try {
-        const response = await requestOpenai(req);
-
-        if (subpath === OpenaiPath.ListModelPath && response.status === 200) {
-          const resJson = (await response.json()) as OpenAIListModelResponse;
-          const availableModels = getModels(resJson);
-          controller.enqueue(encoder.encode(JSON.stringify(availableModels)));
-          controller.close();
-        } else {
-          if(response.body){
-          const reader = response.body.getReader();
-          const streamReader = async () => {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) {
-                streamEnded = true;
-                controller.close();
-                break;
-              }
-              controller.enqueue(value);
-            }
-          };
-          streamReader();
-        }else {streamEnded=true;controller.close();}}
-      } catch (e) {
-        console.error("[OpenAI] ", e);
-        controller.enqueue(encoder.encode(prettyObject(e)));
-        controller.close();
-      }
-    },
-  });
-
-  return new Response(stream, {
-    headers: { 'Content-Type': 'application/json' }
-  });
+    return response;
+  } catch (e) {
+    console.error("[OpenAI] ", e);
+    return NextResponse.json(prettyObject(e));
+  }
 }
 
 export const GET = handle;
