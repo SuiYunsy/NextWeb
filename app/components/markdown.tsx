@@ -99,15 +99,72 @@ export function PreCode(props: { children: any }) {
   );
 }
 
+// function escapeDollarNumber(text: string) {
+//   let escapedText = "";
+
+//   for (let i = 0; i < text.length; i += 1) {
+//     let char = text[i];
+//     const nextChar = text[i + 1] || " ";
+
+//     if (char === "$" && nextChar >= "0" && nextChar <= "9") {
+//       char = "\\$";
+//     }
+
+//     escapedText += char;
+//   }
+
+//   return escapedText;
+// }
+
 function escapeDollarNumber(text: string) {
   let escapedText = "";
+  let isInMathExpression = false;
+  let isInCodeBlock = false;
+  let isInInlineCode = false;
 
-  for (let i = 0; i < text.length; i += 1) {
+  for (let i = 0; i < text.length; i++) {
     let char = text[i];
     const nextChar = text[i + 1] || " ";
 
-    if (char === "$" && nextChar >= "0" && nextChar <= "9") {
-      char = "\\$";
+    // Toggle the isInCodeBlock flag when encountering a code block start or end indicator
+    if (text.substring(i, i + 3) === "```") {
+      isInCodeBlock = !isInCodeBlock;
+      escapedText += "```";
+      i += 2; // Skip the next two characters since we have already included them
+      continue;
+    }
+
+    // Toggle the isInInlineCode flag when encountering a single backtick
+    if (char === "`" && !isInCodeBlock) {
+      isInInlineCode = !isInInlineCode;
+      escapedText += "`";
+      continue;
+    }
+
+    // If inside a code block, preserve the character as is
+    if (isInCodeBlock || isInInlineCode) {
+      escapedText += char;
+      continue;
+    }
+
+    // Toggle the isInMathExpression flag when encountering a dollar sign
+    if (char === "$" && nextChar !== "$" && !isInMathExpression) {
+      isInMathExpression = true;
+    } else if (char === "$" && nextChar !== "$" && isInMathExpression) {
+      isInMathExpression = false;
+    }
+
+    // Preserve the double dollar sign in math expressions
+    if (char === "$" && nextChar === "$") {
+      escapedText += "$$"; // Preserve the double dollar sign
+      i++; // Skip the next dollar sign since we have already included it
+      continue;
+    }
+
+    // Escape a single dollar sign followed by a number outside of math expressions
+    if (char === "$" && nextChar >= "0" && nextChar <= "9" && !isInMathExpression) {
+      escapedText += "&#36;"; // Use HTML entity &#36; to represent the dollar sign
+      continue;
     }
 
     escapedText += char;

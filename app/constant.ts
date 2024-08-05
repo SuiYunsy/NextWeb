@@ -111,12 +111,9 @@ export const DEFAULT_INPUT_TEMPLATE = `{{input}}`; // input / time / model / lan
 // Latex block: $$e=mc^2$$
 // `;
 export const DEFAULT_SYSTEM_TEMPLATE = `
-You are a large language model trained by {{ServiceProvider}}.
-Knowledge cutoff: {{cutoff}}
+You are a large language model(LLM).
 Current model: {{model}}
 Current time: {{time}}
-Latex inline: \\(x^2\\) 
-Latex block: $$e=mc^2$$
 `;
 
 export const SUMMARIZE_MODEL = "gpt-3.5-turbo";
