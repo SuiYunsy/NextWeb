@@ -232,11 +232,11 @@ function SearchBarComponent(
           />
         )}
       </div>
-      {/* {input.trim().length > 0 && (
+      {input.trim().length > 0 && (
         <div className={styles["search-item-total-count"]}>
-          {displayedResults.length} chats found
+          {displayedResults.length} 条
         </div>
-      )} */}
+      )}
       <div className={styles["search-result"]}>
         {displayedResults.map((result) => (
           <SearchResultItem
