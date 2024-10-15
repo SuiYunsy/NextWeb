@@ -116,7 +116,7 @@ function SearchResultItem({
       </div>
       <div className={styles["search-item-info"]}>
         <div className={styles["search-item-count"]}>
-          {result.message.length} messages found
+          {result.message.length}
         </div>
         <div className={styles["search-item-date"]}>
           {new Date(result.lastUpdate).toLocaleString()}
@@ -232,11 +232,11 @@ function SearchBarComponent(
           />
         )}
       </div>
-      {input.trim().length > 0 && (
+      {/* {input.trim().length > 0 && (
         <div className={styles["search-item-total-count"]}>
           {displayedResults.length} chats found
         </div>
-      )}
+      )} */}
       <div className={styles["search-result"]}>
         {displayedResults.map((result) => (
           <SearchResultItem
