@@ -69,8 +69,10 @@
     margin-bottom: 15px;
 
     .sidebar-search-bar-input {
-      position: relative;
+      position: sticky;
       width: 100%;
+      top: 0;
+      z-index: 1;
 
       .search-icon {
         position: absolute;
