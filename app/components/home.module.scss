@@ -69,8 +69,10 @@
     margin-bottom: 15px;
 
     .sidebar-search-bar-input {
-      position: relative;
+      position: sticky;
       width: 100%;
+      top: 0;
+      z-index: 1;
 
       .search-icon {
         position: absolute;
@@ -109,7 +111,7 @@
       justify-content: space-between;
       color: rgb(166, 166, 166);
       font-size: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       margin-top: 4px;
       margin-left: 4px;
       animation: slide-in ease 0.3s;
@@ -118,10 +120,10 @@
     .search-result {
 
       .search-result-item {
-        padding: 10px 14px;
+        padding: 8px 12px;
         background-color: var(--white);
         border-radius: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         box-shadow: var(--card-shadow);
         transition: background-color 0.3s ease;
         cursor: pointer;
